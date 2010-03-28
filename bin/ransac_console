@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+
+$:.unshift File.join(File.dirname(__FILE__), "..", "lib")
+
+require "ransac"
+require "irb"
+
+begin
+  gem "main", ">= 4.2.0"
+  require "main"
+rescue
+  Gem::LoadError
+  STDERR.puts "sudo gem install main"
+end
+
+Main::Softspoken.off!
+Main {
+  option("environment", "e"){
+    description "The environment in which to initialize Ransac"
+    required
+    argument_required
+    default ENV["RACK_ENV"] || "test"
+  }
+
+  def run
+    # include the current lib dir, if applicable
+    if File.directory?(File.join(Dir.pwd, "lib"))
+      $:.unshift File.join(Dir.pwd, "lib")
+    end
+    ARGV.length.times do
+      ARGV.delete_at(0)
+    end
+    Ransac.initialize(:environment=>params['environment'].value)
+    IRB.start
+  end
+}
