@@ -1,12 +1,12 @@
 require 'rubygems'
 require 'dm-core'
 require 'dm-validations'
-require 'dm-timestamps'
 require 'rubygems'
 require 'patron'
 require 'nokogiri'
 require 'yaml'
 require 'logging'
+require 'iconv'
 
 module Ransac
   VERSION = '0.0.0'
@@ -73,3 +73,13 @@ module Ransac
   end # class << self
 end
 Ransac.require_all_libs_relative_to(__FILE__)
+
+module SledgeHammer
+  def utf8_sledgehammer
+    Iconv.iconv('ascii//translit', 'utf-8', self).to_s
+  end
+end
+
+class String
+  include SledgeHammer
+end

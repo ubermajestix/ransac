@@ -15,12 +15,8 @@ module Ransac
     # then get all sub categories
     # http://www.backcountry.com/store/subcat/40/Womens-Footwear.html
     def self.get_categories
-      puts "="*45
-      puts patron.inspect
-      puts "="*45
       response = patron.get "/"
       doc = Nokogiri::HTML(response.body)
-  
       categories = {}
       doc.search('a').each do |a|
         if a.attribute('href').to_s
@@ -48,7 +44,7 @@ module Ransac
             end
         end
       end
-      File.open('backcountry_categories.yml', 'w'){|f| f.write categories.to_yml}
+      File.open('backcountry_categories.yml', 'w'){|f| f.write categories.to_yaml}
     end
   
     def self.save_categories
@@ -62,11 +58,40 @@ module Ransac
       end
       subcats.each do |cat|
         next if cat.first == :href
-        puts cat.inspect
-        Category.create!(:name=>cat.first, :href=>cat.last[:href])
+        logger.info cat.inspect
+        c = Category.create(:name=>cat.first, :href=>cat.last[:href])
+        c.save!
       end
-      puts Category.all.length
+      logger.info Category.all.length
     end
-  
-  end
-end
+
+    def self.get_products
+      ::Category.all.each do |cat|
+        logger.info cat.inspect
+        response = patron.get cat.href.gsub("http://www.backcountry.com",'')
+        doc = Nokogiri::HTML(response.body)
+        doc.search('div.product')[0,8].each do |product_div|
+          begin
+            logger.info "-----"
+            product = {}
+            name_href = product_div.search('div.descrip_col h2 a')
+            product[:name] = name_href.inner_html
+            product[:href] = name_href.attribute('href')
+            product[:description] = product_div.search('div.descrip_col p.descrip').inner_html.strip
+            product[:price] = product_div.search('div.price').inner_html.gsub(/\$/,'').strip.scan(/\d+\.\d+/).last
+            product[:male] = product[:name].include?("Men's")
+            product[:female] = product[:name].include?("Women's")
+            product[:category_id] = cat.id
+            logger.info Product.create!(product).inspect
+          rescue StandardError => e
+            logger.error e.inspect
+          end
+        end
+      end
+    end
+    
+    def self.logger
+      @logger ||= Ransac.logger
+    end
+  end # of class
+end # of module
