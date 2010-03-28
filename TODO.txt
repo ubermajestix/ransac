@@ -1,0 +1,32 @@
+get product's into solr/lucene
+get semantic vector package to run against solr/lucene index
+get related products from semantic vectors based on search term(s)
+
+match steepandcheap.com product to backcountry.com products using semantic vectors
+
+make vector-set from related products and search input text
+match steepandcheap.com product to several vector-sets
+
+index more backcountry product sites (dogfunk.com, huckandroll.com, realcyclist.com) for bike and snowboard/skate related items
+
+match deals from chainlove, whiskeymilitia, brociety, bonktown, and tramdock
+
+cron scrape all deal sites every 1-25? minutes, store "current" deal, update current deal if it doesn't match and then match to user vector-sets
+
+-- web app
+ user inputs search terms/description
+ -- user could pick from categories to help search(climbing=>shoes or skis=>fat alpine + skis=>all mountain skis )
+ user picks at least 3-5 (maybe more) related items
+ user sets other variables: gender, price, color
+ user sets notification options: email, im, sms
+  -- if im, we have to establish jabber friendship
+  -- user must friend us, confirmation of friendship needs to be shown in interface
+  -- if email, user must confirm email
+ user sets annoyance/importance/notification-threshold level (only send me notifications of really close matches)
+ user sets time-of-day notification (i.e. not while i'm asleep, not while i'm at work etc...)
+ send notification to user if their vector-set matches current sac-item
+ user can destroy vector-set
+ user can edit vector-set
+ 
+  
+
